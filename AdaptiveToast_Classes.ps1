@@ -149,17 +149,22 @@ class Image
         $this.Crop = $crop
     }
 
-    [string] GetXML ()
+    [xml] GetXML ()
     {
-        $ImageXML = "<image src=`"$($this.Source)`" "
+        $ImageXML = New-Object System.XML.XMLDocument
+        $ImageElement = $ImageXML.CreateElement('image')
+
+        $ImageElement.SetAttribute('src',$this.Source)
 
         if ($this.Alt)
         {
-            $ImageXML += "alt=`"$($this.Alt)`" "
+            $ImageElement.SetAttribute('alt',$this.Alt)
         }
         
-        $ImageXML += "placement=`"$($this.Placement)`" hint-crop=`"$($this.crop)`" />"
-
+        $ImageElement.SetAttribute('placement',$this.Placement)
+        $ImageElement.SetAttribute('hint-crop',$this.Crop)
+        
+        $ImageXML.AppendChild($ImageElement)
         return $ImageXML
     }
 }
@@ -196,7 +201,7 @@ class Binding
         
         foreach ($Element in $this.Element)
         {
-            $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($Element.GetXML().OuterXml))
+            $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($Element.GetXML().OuterXML))
             $XmlWriter.WriteNode($XmlReader, $true)
             $XmlReader.Close()
         }
