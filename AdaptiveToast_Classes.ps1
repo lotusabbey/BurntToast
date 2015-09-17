@@ -388,7 +388,7 @@ $binding1.AddElement($text2)
 $binding1.AddElement($image1)
 $visual1 = [Visual]::new($binding1)
 $audio1 = [Audio]::new([AudioSource]::Reminder)
-$toast1 = [Toast]::new([Scenario]::alarm, $visual1, $audio1)
+$toast1 = [Toast]::new([Scenario]::default, $visual1, $audio1)
 
 $AppId = ( ((Get-StartApps -Name '*PowerShell*') | Where-Object -FilterScript {$_.AppId -like '*.exe'} | Select-Object -First 1).AppId  )
 
