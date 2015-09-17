@@ -215,28 +215,17 @@ class Visual
         $this.Binding = $Binding
     }
     
-    [string] GetXML ()
+    [xml] GetXML ()
     {
-        $VisualXML = [System.Text.StringBuilder]::new()
-        $WriterSettings = [System.Xml.XmlWriterSettings]::new()
-        $WriterSettings.ConformanceLevel = 'Fragment'
-        $WriterSettings.Encoding = [System.Text.Encoding]::UTF8
-        $WriterSettings.OmitXmlDeclaration = $true
-        $XmlWriter = [System.Xml.XmlWriter]::Create($VisualXML, $WriterSettings)
-
-        $XmlWriter.WriteStartElement('visual')
+        $VisualXML = New-Object System.XML.XMLDocument
+        $VisualElement = $VisualXML.CreateElement('visual')
         
-        $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($this.Binding.GetXML().OuterXml))
-        $XmlWriter.WriteNode($XmlReader, $true)
-        $XmlReader.Close()
+        $ElementXML = $VisualXML.ImportNode($this.Binding.GetXML().DocumentElement, $true)
+        $VisualElement.AppendChild($ElementXML)
 
-        $XmlWriter.WriteEndElement() # binding
-        
-        $XmlWriter.Finalize
-        $XmlWriter.Flush
-        $XmlWriter.Close()
+        $VisualXML.AppendChild($VisualElement)
 
-        return $VisualXML.ToString()
+        return $VisualXML
     }
 }
 
@@ -293,7 +282,7 @@ class Toast
         $XmlWriter.WriteAttributeString('scenario', $this.Scenario)
         $XmlWriter.WriteAttributeString('duration', $this.Scenario)
         
-        $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($this.Visual.GetXML()))
+        $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($this.Visual.GetXML().OuterXml))
         $XmlWriter.WriteNode($XmlReader, $true)
         $XmlReader.Close()
 
