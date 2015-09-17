@@ -589,7 +589,7 @@ $binding1.AddElement($image1)
 $visual1 = [Visual]::new($binding1)
 $audio1 = [Audio]::new([AudioSource]::SMS)
 $action1 = [Action]::new('Open LCTV','https://www.livecoding.tv/livestreams/',[ActivationType]::protocol)
-$BurntToastPath = Join-Path -Path (Split-Path -Path (Get-Module BurntToast).Path) -ChildPath 'BurntToast.png'
+$BurntToastPath = Join-Path -Path (Split-Path -Path (Get-Module BurntToast -ListAvailable).Path) -ChildPath 'BurntToast.png'
 $action2 = [Action]::new('Burn Toast',$BurntToastPath,[ActivationType]::protocol)
 $actions1 = [Actions]::new()
 $actions1.AddElement($action1)
