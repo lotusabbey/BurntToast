@@ -237,9 +237,16 @@ class Toast
     [Audio] $Audio
     [Duration] $Duration
 
+    #region constructors
     Toast ([Visual] $Visual)
     {
         $this.Visual = $Visual
+    }
+
+    Toast ([Visual] $Visual, [Duration] $Duration)
+    {
+        $this.Visual = $Visual
+        $this.Duration = $Duration
     }
 
     Toast ([Visual] $Visual, [Audio] $Audio)
@@ -247,11 +254,25 @@ class Toast
         $this.Visual = $Visual
         $this.Audio = $Audio
     }
+
+    Toast ([Visual] $Visual, [Audio] $Audio, [Duration] $Duration)
+    {
+        $this.Visual = $Visual
+        $this.Audio = $Audio
+        $this.Duration = $Duration
+    }
     
     Toast ([Scenario] $Scenario, [Visual] $Visual)
     {
         $this.Visual = $Visual
         $this.Scenario = $Scenario
+    }
+
+    Toast ([Scenario] $Scenario, [Visual] $Visual, [Duration] $Duration)
+    {
+        $this.Visual = $Visual
+        $this.Scenario = $Scenario
+        $this.Duration = $Duration
     }
 
     Toast ([Scenario] $Scenario, [Visual] $Visual, [Audio] $Audio)
@@ -268,39 +289,28 @@ class Toast
         $this.Audio = $Audio
         $this.Duration = $Duration
     }
-    
-    [string] GetXML ()
-    {
-        $ToastXML = [System.Text.StringBuilder]::new()
-        $WriterSettings = [System.Xml.XmlWriterSettings]::new()
-        $WriterSettings.ConformanceLevel = 'Fragment'
-        $WriterSettings.Encoding = [System.Text.Encoding]::UTF8
-        $WriterSettings.OmitXmlDeclaration = $true
-        $XmlWriter = [System.Xml.XmlWriter]::Create($ToastXML, $WriterSettings)
+    #endregion
 
-        $XmlWriter.WriteStartElement('toast')
-        $XmlWriter.WriteAttributeString('scenario', $this.Scenario)
-        $XmlWriter.WriteAttributeString('duration', $this.Scenario)
+    [xml] GetXML ()
+    {
+        $ToastXML = New-Object System.XML.XMLDocument
+        $ToastElement = $ToastXML.CreateElement('toast')
+
+        $ToastElement.SetAttribute('scenario', $this.Scenario)
+        $ToastElement.SetAttribute('duration', $this.Scenario)
         
-        $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($this.Visual.GetXML().OuterXml))
-        $XmlWriter.WriteNode($XmlReader, $true)
-        $XmlReader.Close()
+        $VisualXML = $ToastXML.ImportNode($this.Visual.GetXML().DocumentElement, $true)
+        $ToastElement.AppendChild($VisualXML)
 
         if ($this.Audio)
         {
-            $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($this.Audio.GetXML().OuterXml))
-            Write-Host $XmlReader
-            $XmlWriter.WriteNode($XmlReader, $true)
-            $XmlReader.Close()
+            $AudioXML = $ToastXML.ImportNode($this.Audio.GetXML().DocumentElement, $true)
+            $ToastElement.AppendChild($AudioXML)
         }
 
-        $XmlWriter.WriteEndElement() # binding
-        
-        $XmlWriter.Finalize
-        $XmlWriter.Flush
-        $XmlWriter.Close()
+        $ToastXML.AppendChild($ToastElement)
 
-        return $ToastXML.ToString()
+        return $ToastXML
     }
 }
 
@@ -368,8 +378,8 @@ $binding1.AddElement($text1)
 $binding1.AddElement($text2)
 $binding1.AddElement($image1)
 $visual1 = [Visual]::new($binding1)
-$audio1 = [Audio]::new([AudioSource]::Reminder)
-$toast1 = [Toast]::new([Scenario]::default, $visual1, $audio1)
+$audio1 = [Audio]::new([AudioSource]::alarm7)
+$toast1 = [Toast]::new([Scenario]::alarm, $visual1, $audio1)
 
 $AppId = ( ((Get-StartApps -Name '*PowerShell*') | Where-Object -FilterScript {$_.AppId -like '*.exe'} | Select-Object -First 1).AppId  )
 
