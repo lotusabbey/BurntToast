@@ -114,7 +114,7 @@ function New-BurntToastNotification
         # The AppId needs to be for a shortcut present under 'All Programs' on the Windows Start Screen/Menu.
         [Parameter()]
         [ValidateScript({ Test-ToastAppId -Id $_ })]
-        [String] $AppId = ( ((Get-StartApps -Name '*PowerShell*') | Select-Object -First 1).AppId ),
+        [String] $AppId = ( ((Get-StartApps -Name '*PowerShell*') | Where-Object -FilterScript {$_.AppId -like '*.exe'} | Select-Object -First 1).AppId ),
 
         # Specifies the sound that is played when the Toast Notification is displayed.
         #
@@ -249,7 +249,8 @@ function New-BurntToastNotification
                 $ToastXml = New-Object -TypeName Windows.Data.Xml.Dom.XmlDocument
                 $ToastXml.LoadXml($ToastTemplate.OuterXml)
 
-                [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId).Show($ToastXml)
+                $Toast = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId)
+                $Toast.Show($ToastXml)
             }
             else
             {
