@@ -1,30 +1,17 @@
 ﻿class Audio
 {
-    [string] $Source
+    [AudioSource] $Source
     [boolean] $Loop
     [boolean] $Silent
 
-    Audio ([String] $Source)
+    Audio ([AudioSource] $Source)
     {
-        if ($Source -in [AudioSource].GetEnumNames())
+        if ($Source -like 'Call*' -or $Source -like 'Alarm*')
         {
-            $SourceString = $Source.Substring(0,1).ToUpper() + $Source.Substring(1).ToLower()
-            if ($Source -like 'Call*' -or $Source -like 'Alarm*')
-            {
-                $this.Source = "Looping.$SourceString"
-                $this.Loop = $true
-            }
-            else
-            {
-                $this.Source = $SourceString
-                $this.Loop = $false
-            }
-            $this.Silent = $false
+            $this.Loop = $true
         }
-        else
-        {
-            throw "$Source is not a valid Audio Source, please see help."
-        }
+
+        $this.Silent = $false
     }
 
     Audio ([Boolean] $Silent)
@@ -34,7 +21,7 @@
 
     Audio ()
     {
-        $this.Source = 'Default'
+        $this.Source = [AudioSource]::Default
         $this.Loop = $false
         $this.Silent = $false
     }
@@ -49,7 +36,14 @@
         }
         else
         {
-            $AudioXML += "src=`"ms-winsoundevent:Notification.$($this.Source)`" "
+            $src = 'src="ms-winsoundevent:Notification.'
+            
+            if ($this.Source -like 'Call*' -or $this.Source -like 'Alarm*')
+            {
+                $src += 'Looping.'
+            }
+
+            $AudioXML += $src + $this.Source + '" '
 
             if ($this.Loop)
             {
@@ -384,6 +378,7 @@ enum Duration
     long
 }
 
+<#
 $text1 = [Text]::new('This is a test')
 $text2 = [Text]::new('This more testing')
 $image1 = [Image]::new('C:\GitHub\BurntToast\BurntToast.png', [ImagePlacement]::appLogoOverride, [ImageCrop]::circle)
@@ -392,10 +387,10 @@ $binding1.AddElement($text1)
 $binding1.AddElement($text2)
 $binding1.AddElement($image1)
 $visual1 = [Visual]::new($binding1)
-$audio1 = [Audio]::new('Alarm3')
+$audio1 = [Audio]::new([AudioSource]::Alarm4)
 $toast1 = [Toast]::new([Scenario]::alarm, $visual1, $audio1)
 
-$AppId = ( ((Get-StartApps -Name '*PowerShell*') | Select-Object -First 1).AppId )
+$AppId = ( ((Get-StartApps -Name '*PowerShell*') | Where-Object -FilterScript {$_.AppId -like '*.exe'} | Select-Object -First 1).AppId  )
 
 $null = [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime]
 [xml]$ToastTemplate = $toast1.GetXML()
@@ -404,3 +399,4 @@ $ToastXml = [Windows.Data.Xml.Dom.XmlDocument]::new()
 $ToastXml.LoadXml($ToastTemplate.OuterXml)
 
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId).Show($ToastXml)
+#>
