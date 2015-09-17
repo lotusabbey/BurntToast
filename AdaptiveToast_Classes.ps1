@@ -58,6 +58,27 @@
     }
 }
 
+class Actions
+{
+    [string] $SystemCommand = 'SnoozeAndDismiss'
+
+    Actions ([string] $SystemCommand)
+    {
+        $this.SystemCommand = $SystemCommand
+    }
+
+    [xml] GetXML ()
+    {
+        $ActionsXML = New-Object System.XML.XMLDocument
+        $ActionsElement = $ActionsXML.CreateElement('actions')
+
+        $ActionsElement.SetAttribute('hint-systemCommands', $this.SystemCommand)
+
+        $ActionsXML.AppendChild($ActionsElement)
+        return $ActionsXML
+    }
+}
+
 class Text
 {
     # Look for api with 'BCP-47 language tags such as "en-US" or "fr-FR".'
@@ -235,6 +256,7 @@ class Toast
     [Visual] $Visual
     [Scenario] $Scenario
     [Audio] $Audio
+    [Actions] $Actions
     [Duration] $Duration
 
     #region constructors
@@ -291,6 +313,68 @@ class Toast
     }
     #endregion
 
+    #region constructors-Actions
+    Toast ([Visual] $Visual, [Actions] $Actions)
+    {
+        $this.Visual = $Visual
+        $this.Actions = $Actions
+    }
+
+    Toast ([Visual] $Visual, [Duration] $Duration, [Actions] $Actions)
+    {
+        $this.Visual = $Visual
+        $this.Duration = $Duration
+        $this.Actions = $Actions
+    }
+
+    Toast ([Visual] $Visual, [Audio] $Audio, [Actions] $Actions)
+    {
+        $this.Visual = $Visual
+        $this.Audio = $Audio
+        $this.Actions = $Actions
+    }
+
+    Toast ([Visual] $Visual, [Audio] $Audio, [Duration] $Duration, [Actions] $Actions)
+    {
+        $this.Visual = $Visual
+        $this.Audio = $Audio
+        $this.Duration = $Duration
+        $this.Actions = $Actions
+    }
+    
+    Toast ([Scenario] $Scenario, [Visual] $Visual, [Actions] $Actions)
+    {
+        $this.Visual = $Visual
+        $this.Scenario = $Scenario
+        $this.Actions = $Actions
+    }
+
+    Toast ([Scenario] $Scenario, [Visual] $Visual, [Duration] $Duration, [Actions] $Actions)
+    {
+        $this.Visual = $Visual
+        $this.Scenario = $Scenario
+        $this.Duration = $Duration
+        $this.Actions = $Actions
+    }
+
+    Toast ([Scenario] $Scenario, [Visual] $Visual, [Audio] $Audio, [Actions] $Actions)
+    {
+        $this.Visual = $Visual
+        $this.Scenario = $Scenario
+        $this.Audio = $Audio
+        $this.Actions = $Actions
+    }
+
+    Toast ([Scenario] $Scenario, [Visual] $Visual, [Audio] $Audio, [Duration] $Duration, [Actions] $Actions)
+    {
+        $this.Visual = $Visual
+        $this.Scenario = $Scenario
+        $this.Audio = $Audio
+        $this.Duration = $Duration
+        $this.Actions = $Actions
+    }
+    #endregion
+
     [xml] GetXML ()
     {
         $ToastXML = New-Object System.XML.XMLDocument
@@ -306,6 +390,12 @@ class Toast
         {
             $AudioXML = $ToastXML.ImportNode($this.Audio.GetXML().DocumentElement, $true)
             $ToastElement.AppendChild($AudioXML)
+        }
+
+        if ($this.Actions)
+        {
+            $ActionsXML = $ToastXML.ImportNode($this.Actions.GetXML().DocumentElement, $true)
+            $ToastElement.AppendChild($ActionsXML)
         }
 
         $ToastXML.AppendChild($ToastElement)
@@ -369,7 +459,7 @@ enum Duration
     long
 }
 
-<#
+
 $text1 = [Text]::new('This is a test')
 $text2 = [Text]::new('This more testing')
 $image1 = [Image]::new('C:\GitHub\BurntToast\BurntToast.png', [ImagePlacement]::appLogoOverride, [ImageCrop]::circle)
@@ -378,8 +468,9 @@ $binding1.AddElement($text1)
 $binding1.AddElement($text2)
 $binding1.AddElement($image1)
 $visual1 = [Visual]::new($binding1)
-$audio1 = [Audio]::new([AudioSource]::alarm7)
-$toast1 = [Toast]::new([Scenario]::alarm, $visual1, $audio1)
+$audio1 = [Audio]::new([AudioSource]::SMS)
+$actions1 = [Actions]::new('SnoozeAndDismiss')
+$toast1 = [Toast]::new([Scenario]::reminder, $visual1, $audio1, $actions1)
 
 $AppId = ( ((Get-StartApps -Name '*PowerShell*') | Where-Object -FilterScript {$_.AppId -like '*.exe'} | Select-Object -First 1).AppId  )
 
@@ -389,5 +480,9 @@ $null = [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notificat
 $ToastXml = [Windows.Data.Xml.Dom.XmlDocument]::new()
 $ToastXml.LoadXml($ToastTemplate.OuterXml)
 
-[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId).Show($ToastXml)
-#>
+$Toast = [Windows.UI.Notifications.ToastNotification]::new($ToastXml)
+
+#$Toast.SuppressPopup = $true
+
+[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId).Show($Toast)
+<# #>
