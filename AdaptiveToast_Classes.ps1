@@ -187,32 +187,21 @@ class Binding
         $this.Element += $Element
     }
     
-    [string] GetXML ()
+    [xml] GetXML ()
     {
-        $BindingXML = [System.Text.StringBuilder]::new()
-        $WriterSettings = [System.Xml.XmlWriterSettings]::new()
-        $WriterSettings.ConformanceLevel = 'Fragment'
-        $WriterSettings.Encoding = [System.Text.Encoding]::UTF8
-        $WriterSettings.OmitXmlDeclaration = $true
-        $XmlWriter = [System.Xml.XmlWriter]::Create($BindingXML, $WriterSettings)
-
-        $XmlWriter.WriteStartElement('binding')
-        $XmlWriter.WriteAttributeString('template', 'ToastGeneric')
+        $BindingXML = New-Object System.XML.XMLDocument
+        $BindingElement = $BindingXML.CreateElement('binding')
+        $BindingElement.SetAttribute('template', $this.Template)
         
         foreach ($Element in $this.Element)
         {
-            $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($Element.GetXML().OuterXML))
-            $XmlWriter.WriteNode($XmlReader, $true)
-            $XmlReader.Close()
+            $ElementXML = $BindingXML.ImportNode($Element.GetXML().DocumentElement, $true)
+            $BindingElement.AppendChild($ElementXML)
         }
 
-        $XmlWriter.WriteEndElement() # binding
-        
-        $XmlWriter.Finalize
-        $XmlWriter.Flush
-        $XmlWriter.Close()
+        $BindingXML.AppendChild($BindingElement)
 
-        return $BindingXML.ToString()
+        return $BindingXML
     }
 }
 
@@ -237,7 +226,7 @@ class Visual
 
         $XmlWriter.WriteStartElement('visual')
         
-        $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($this.Binding.GetXML()))
+        $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($this.Binding.GetXML().OuterXml))
         $XmlWriter.WriteNode($XmlReader, $true)
         $XmlReader.Close()
 
