@@ -26,35 +26,34 @@
         $this.Silent = $false
     }
 
-    [string] GetXML ()
+    [xml] GetXML ()
     {
-        $AudioXML = '<audio '
+        $AudioXML = New-Object System.XML.XMLDocument
+        $AudioElement = $AudioXML.CreateElement('audio')
 
         if ($this.Silent)
         {
-            $AudioXML += 'silent="true" />'
+            $AudioElement.SetAttribute('silent','true')
         }
         else
         {
-            $src = 'src="ms-winsoundevent:Notification.'
+            $src = 'ms-winsoundevent:Notification.'
             
             if ($this.Source -like 'Call*' -or $this.Source -like 'Alarm*')
             {
                 $src += 'Looping.'
             }
 
-            $AudioXML += $src + $this.Source + '" '
+            $src += $this.Source
+            $AudioElement.SetAttribute('src',$src)
 
             if ($this.Loop)
             {
-                $AudioXML += 'loop="true" />'
-            }
-            else
-            {
-                $AudioXML += '/>'
+                $AudioElement.SetAttribute('loop','true')
             }
         }
 
+        $AudioXML.AppendChild($AudioElement)
         return $AudioXML
     }
 }
@@ -308,7 +307,8 @@ class Toast
 
         if ($this.Audio)
         {
-            $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($this.Audio.GetXML()))
+            $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($this.Audio.GetXML().OuterXml))
+            Write-Host $XmlReader
             $XmlWriter.WriteNode($XmlReader, $true)
             $XmlReader.Close()
         }
@@ -323,7 +323,7 @@ class Toast
     }
 }
 
-enum AudioSource
+enum AudioSource 
 {
     Default
     IM
@@ -387,7 +387,7 @@ $binding1.AddElement($text1)
 $binding1.AddElement($text2)
 $binding1.AddElement($image1)
 $visual1 = [Visual]::new($binding1)
-$audio1 = [Audio]::new([AudioSource]::Alarm4)
+$audio1 = [Audio]::new([AudioSource]::Reminder)
 $toast1 = [Toast]::new([Scenario]::alarm, $visual1, $audio1)
 
 $AppId = ( ((Get-StartApps -Name '*PowerShell*') | Where-Object -FilterScript {$_.AppId -like '*.exe'} | Select-Object -First 1).AppId  )
