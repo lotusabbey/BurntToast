@@ -61,10 +61,18 @@
 class Actions
 {
     [string] $SystemCommand = 'SnoozeAndDismiss'
+    [object[]] $Element = @()
 
+    Actions () {}
+    
     Actions ([string] $SystemCommand)
     {
         $this.SystemCommand = $SystemCommand
+    }
+
+    [void] AddElement ([Action] $Element)
+    {
+        $this.Element += $Element
     }
 
     [xml] GetXML ()
@@ -72,10 +80,113 @@ class Actions
         $ActionsXML = New-Object System.XML.XMLDocument
         $ActionsElement = $ActionsXML.CreateElement('actions')
 
-        $ActionsElement.SetAttribute('hint-systemCommands', $this.SystemCommand)
+        if ($this.Element.Count -eq 0)
+        {
+            $ActionsElement.SetAttribute('hint-systemCommands', $this.SystemCommand)
+        }
+        else
+        {
+            foreach ($Element in $this.Element)
+            {
+                $ElementXML = $ActionsXML.ImportNode($Element.GetXML().DocumentElement, $true)
+                $ActionsElement.AppendChild($ElementXML)
+            }
+        }
 
         $ActionsXML.AppendChild($ActionsElement)
         return $ActionsXML
+    }
+}
+
+class Action
+{
+    [string] $Content
+    [string] $Arguments
+    [ActivationType] $ActivationType
+    [System.IO.Path] $ImageUri
+    [string] $InputId
+
+    Action ([string] $Content, [string] $Arguments)
+    {
+        $this.Content = $Content
+        $this.Arguments = $Arguments
+    }
+
+    Action ([string] $Content, [string] $Arguments, [ActivationType] $ActivationType)
+    {
+        $this.Content = $Content
+        $this.Arguments = $Arguments
+        $this.ActivationType = $ActivationType
+    }
+
+    Action ([string] $Content, [string] $Arguments, [ActivationType] $ActivationType, [System.IO.Path] $ImageUri)
+    {
+        $this.Content = $Content
+        $this.Arguments = $Arguments
+        $this.ActivationType = $ActivationType
+        $this.ImageUri = $ImageUri
+    }
+
+    Action ([string] $Content, [string] $Arguments, [ActivationType] $ActivationType, [string] $InputId)
+    {
+        $this.Content = $Content
+        $this.Arguments = $Arguments
+        $this.ActivationType = $ActivationType
+        $this.InputId = $InputId
+    }
+
+    Action ([string] $Content, [string] $Arguments, [System.IO.Path] $ImageUri)
+    {
+        $this.Content = $Content
+        $this.Arguments = $Arguments
+        $this.ImageUri = $ImageUri
+    }
+
+    Action ([string] $Content, [string] $Arguments, [string] $InputId)
+    {
+        $this.Content = $Content
+        $this.Arguments = $Arguments
+        $this.InputId = $InputId
+    }
+
+    Action ([string] $Content, [string] $Arguments, [System.IO.Path] $ImageUri, [string] $InputId)
+    {
+        $this.Content = $Content
+        $this.Arguments = $Arguments
+        $this.ImageUri = $ImageUri
+        $this.InputId = $InputId
+    }
+
+    Action ([string] $Content, [string] $Arguments, [ActivationType] $ActivationType, [System.IO.Path] $ImageUri, [string] $InputId)
+    {
+        $this.Content = $Content
+        $this.Arguments = $Arguments
+        $this.ActivationType = $ActivationType
+        $this.ImageUri = $ImageUri
+        $this.InputId = $InputId
+    }
+
+    [xml] GetXML ()
+    {
+        $ActionXML = New-Object System.XML.XMLDocument
+        $ActionElement = $ActionXML.CreateElement('action')
+
+        $ActionElement.SetAttribute('content', $this.Content)
+        $ActionElement.SetAttribute('arguments', $this.Arguments)
+        $ActionElement.SetAttribute('activationType', $this.ActivationType)
+
+        if ($this.ImageUri)
+        {
+            $ActionElement.SetAttribute('imageUri', $this.ImageUri)
+        }
+
+        if ($this.InputId)
+        {
+            $ActionElement.SetAttribute('hint-inputId', $this.InputId)
+        }
+
+        $ActionXML.AppendChild($ActionElement)
+        return $ActionXML
     }
 }
 
@@ -459,6 +570,14 @@ enum Duration
     long
 }
 
+enum ActivationType
+{
+    foreground
+    background
+    system
+    protocol
+}
+
 
 $text1 = [Text]::new('This is a test')
 $text2 = [Text]::new('This more testing')
@@ -469,7 +588,9 @@ $binding1.AddElement($text2)
 $binding1.AddElement($image1)
 $visual1 = [Visual]::new($binding1)
 $audio1 = [Audio]::new([AudioSource]::SMS)
-$actions1 = [Actions]::new('SnoozeAndDismiss')
+$action1 = [Action]::new('Burn Toast','C:\GitHub\BurntToast\BurntToast.png',[ActivationType]::protocol)
+$actions1 = [Actions]::new()
+$actions1.AddElement($action1)
 $toast1 = [Toast]::new([Scenario]::reminder, $visual1, $audio1, $actions1)
 
 $AppId = ( ((Get-StartApps -Name '*PowerShell*') | Where-Object -FilterScript {$_.AppId -like '*.exe'} | Select-Object -First 1).AppId  )
