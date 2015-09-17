@@ -588,9 +588,12 @@ $binding1.AddElement($text2)
 $binding1.AddElement($image1)
 $visual1 = [Visual]::new($binding1)
 $audio1 = [Audio]::new([AudioSource]::SMS)
-$action1 = [Action]::new('Burn Toast','C:\GitHub\BurntToast\BurntToast.png',[ActivationType]::protocol)
+$action1 = [Action]::new('Open LCTV','https://www.livecoding.tv/livestreams/',[ActivationType]::protocol)
+$BurntToastPath = Join-Path -Path (Split-Path -Path (Get-Module BurntToast).Path) -ChildPath 'BurntToast.png'
+$action2 = [Action]::new('Burn Toast',$BurntToastPath,[ActivationType]::protocol)
 $actions1 = [Actions]::new()
 $actions1.AddElement($action1)
+$actions1.AddElement($action2)
 $toast1 = [Toast]::new([Scenario]::reminder, $visual1, $audio1, $actions1)
 
 $AppId = ( ((Get-StartApps -Name '*PowerShell*') | Where-Object -FilterScript {$_.AppId -like '*.exe'} | Select-Object -First 1).AppId  )
