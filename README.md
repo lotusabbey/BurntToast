@@ -25,11 +25,11 @@ _See the [PowerShell Gallery](http://www.powershellgallery.com/packages/BurntToa
 	
 ### Windows 8.1
 
-![BurntToast Notification Example in Windows 8.1](/Images/Toast-Win8.png)
+![BurntToast Notification Example in Windows 8.1](/Media/Toast-Win8.png)
 
 ### Windows 10
 
-![BurntToast Notification Example in Windows 10](/Images/Toast-Win10.png)
+![BurntToast Notification Example in Windows 10](/Media/Toast-Win10.png)
 
 ## Releases
 * [Bleeding Edge](https://github.com/Windos/BurntToast/archive/master.zip) (Development/Raw Repo - **CAUTION**)

@@ -107,7 +107,7 @@ function New-BurntToastNotification
         # The path to the image must be on a local/mapped disk. Images on a UNC path will not be displayed.
         [Parameter()]
         [ValidateScript({ Test-ToastImage -Path $_ })]
-        [String] $Image = ( Join-Path -Path $PSScriptRoot -ChildPath 'BurntToast.png' ),
+        [String] $Image = ( Join-Path -Path (Split-Path -Path $PSScriptRoot) -ChildPath 'Media\BurntToast.png' ),
 
         # Specifies the AppId used to generate and display the Toast Notification.
         #
