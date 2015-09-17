@@ -88,19 +88,17 @@ class Text
         $this.Empty = $true
     }
 
-    [string] GetXML ()
+    [xml] GetXML ()
     {
-        $TextXML = '<text'
+        $TextXML = New-Object System.XML.XMLDocument
+        $TextElement = $TextXML.CreateElement('text')
 
-        if ($this.Empty)
+        if (!$this.Empty)
         {
-            $TextXML += ' />'
-        }
-        else
-        {
-            $TextXML += ">$($this.Content)</text>"
+            $TextElement.InnerText = $this.Content
         }
 
+        $TextXML.AppendChild($TextElement)
         return $TextXML
     }
 }
@@ -198,7 +196,7 @@ class Binding
         
         foreach ($Element in $this.Element)
         {
-            $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($Element.GetXML()))
+            $XmlReader = [System.Xml.XmlReader]::Create([System.IO.StringReader]::new($Element.GetXML().OuterXml))
             $XmlWriter.WriteNode($XmlReader, $true)
             $XmlReader.Close()
         }
