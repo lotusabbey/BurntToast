@@ -27,6 +27,6 @@ $ToastXml.LoadXml($ToastTemplate.OuterXml)
 
 $Toast = [Windows.UI.Notifications.ToastNotification]::new($ToastXml)
 
-#$Toast.SuppressPopup = $true
+$Toast.SuppressPopup = $true
 
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId).Show($Toast)
