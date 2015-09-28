@@ -1,9 +1,14 @@
-$text1 = [Text]::new('This is a test')
-$text2 = [Text]::new('This more testing')
+#$text1 = [Text]::new('This is a test')
+#$text2 = [Text]::new('This more testing')
+$text1 = New-CrumpetTextElement -Content 'This is a test'
+$text2 = New-CrumpetTextElement
+$text3 = New-CrumpetTextElement -Content 'This more testing'
+
 $image1 = [Image]::new('C:\GitHub\BurntToast\BurntToast.png', [ImagePlacement]::appLogoOverride, [ImageCrop]::circle)
 $binding1 = [Binding]::new()
 $binding1.AddElement($text1)
 $binding1.AddElement($text2)
+$binding1.AddElement($text3)
 $binding1.AddElement($image1)
 $visual1 = [Visual]::new($binding1)
 
