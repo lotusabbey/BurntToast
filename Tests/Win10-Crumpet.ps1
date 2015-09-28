@@ -6,7 +6,10 @@ $binding1.AddElement($text1)
 $binding1.AddElement($text2)
 $binding1.AddElement($image1)
 $visual1 = [Visual]::new($binding1)
-$audio1 = [Audio]::new([AudioSource]::SMS)
+
+#$audio1 = [Audio]::new([AudioSource]::SMS)
+$audio1 = New-CrumpetAudioElement -Source Call7
+
 #$action1 = [Action]::new('Open LCTV','https://www.livecoding.tv/livestreams/',[ActivationType]::protocol)
 #$BurntToastPath = Join-Path -Path (Split-Path -Path (Get-Module BurntToast -ListAvailable).Path) -ChildPath 'BurntToast.png'
 #$action2 = [Action]::new('Burn Toast',$BurntToastPath,[ActivationType]::protocol)
@@ -29,6 +32,6 @@ $ToastXml.LoadXml($ToastTemplate.OuterXml)
 
 $Toast = [Windows.UI.Notifications.ToastNotification]::new($ToastXml)
 
-$Toast.SuppressPopup = $true
+# $Toast.SuppressPopup = $true
 
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId).Show($Toast)

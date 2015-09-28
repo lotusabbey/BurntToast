@@ -11,6 +11,7 @@
             $this.Loop = $true
         }
 
+        $this.Source = $Source
         $this.Silent = $false
     }
 
