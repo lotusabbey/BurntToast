@@ -20,6 +20,8 @@ $toast1 = [Toast]::new([Scenario]::reminder, $visual1, $audio1, $actions1)
 $AppId = ( ((Get-StartApps -Name '*PowerShell*') | Where-Object -FilterScript {$_.AppId -like '*.exe'} | Select-Object -First 1).AppId  )
 
 $null = [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime]
+$null = [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime]
+
 [xml]$ToastTemplate = $toast1.GetXML()
 
 $ToastXml = [Windows.Data.Xml.Dom.XmlDocument]::new()
