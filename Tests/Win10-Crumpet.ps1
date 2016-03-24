@@ -4,7 +4,7 @@ $text1 = New-CrumpetTextElement -Content 'This is a test'
 $text2 = New-CrumpetTextElement
 $text3 = New-CrumpetTextElement -Content 'This more testing'
 
-$image1 = [Image]::new('C:\GitHub\BurntToast\BurntToast.png', [ImagePlacement]::appLogoOverride, [ImageCrop]::circle)
+$image1 = [Image]::new('C:\GitHub\BurntToast\BurntToast\Media\BurntToast.png', [ImagePlacement]::appLogoOverride, [ImageCrop]::circle)
 $binding1 = [Binding]::new()
 $binding1.AddElement($text1)
 $binding1.AddElement($text2)
