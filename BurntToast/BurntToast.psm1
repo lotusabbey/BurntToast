@@ -1,8 +1,16 @@
-﻿. $PSScriptRoot\Public\New-BurntToastNotification.ps1
-. $PSScriptRoot\Private\Test-PSDifferentUser.ps1
-. $PSScriptRoot\Private\ValidationScripts.ps1
+﻿$Public = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue )
+$Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )
 
-if ([Environment]::OSVersion.Version.Major -ge 10)
+Foreach($import in @($Public + $Private))
 {
-    . $PSScriptRoot\Private\AdaptiveToast_Classes.ps1
+    Try
+    {
+        . $import.fullname
+    }
+    Catch
+    {
+        Write-Error -Message "Failed to import function $($import.fullname): $_"
+    }
 }
+
+Export-ModuleMember -Function $Public.Basename
